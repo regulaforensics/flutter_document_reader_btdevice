@@ -19,5 +19,5 @@ rootProject.allprojects {
 }
 
 dependencies {
-    implementation 'com.regula.btdevice:api:6.6.7582'
+    implementation 'com.regula.btdevice:api:5.4.363'
 }
