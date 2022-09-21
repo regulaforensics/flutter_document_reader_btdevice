@@ -1,0 +1,27 @@
+name: flutter_document_reader_btdevice_beta
+description: 
+  This is a flutter module for Regula document reader. 
+  It allows you to easily scan documents, for example passport, using your phone's camera. Supports Android and iOS
+version: 0.0.1
+homepage: "https://github.com/regulaforensics/flutter_document_reader_btdevice"
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+  flutter: ">=1.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: io.flutter.plugins.regula.documentreader.flutter_document_reader_btdevice
+        pluginClass: FlutterDocumentReaderBtdevicePlugin
+      ios:
+        pluginClass: FlutterDocumentReaderBtdevicePlugin
