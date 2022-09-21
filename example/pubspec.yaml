@@ -11,8 +11,8 @@ dependencies:
   image_picker: ^0.8.4+2
   flutter:
     sdk: flutter
-  api_module_place_holder: api_version_place_holder
-  core_module_place_holder: core_version_place_holder
+  flutter_document_reader_api_beta: 0.1.79
+  flutter_document_reader_core_fullauthrfid: 6.5.0
   cupertino_icons: ^1.0.3
 
 dev_dependencies:
