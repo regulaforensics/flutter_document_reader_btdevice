@@ -11,6 +11,8 @@ dependencies:
   image_picker: ^0.8.4+2
   flutter:
     sdk: flutter
+  flutter_document_reader_btdevice_beta:
+    path: ../
   flutter_document_reader_api_beta: 0.1.79
   flutter_document_reader_core_fullauthrfid: 6.5.0
   cupertino_icons: ^1.0.3
