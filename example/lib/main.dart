@@ -423,22 +423,25 @@ class _MyAppState extends State<MyApp> {
                           onChanged: onChangeRfid,
                           title: Text(
                               "Process rfid reading ${_canRfid ? "" : "(unavailable)"}")),
-                      // Visibility(
-                      //     visible: !getDocumentReaderIsReady,
-                      //     child: Row(
-                      //         mainAxisAlignment: MainAxisAlignment.center,
-                      //         children: <Widget>[
-                      //           Text("btDeviceName: "),
-                      //           TextFormField(
-                      //             decoration: InputDecoration(
-                      //                 border: OutlineInputBorder(),
-                      //                 hintText: 'btDeviceName'),
-                      //             onChanged: (text) {
-                      //               setState(() => btDeviceName = text);
-                      //             },
-                      //             initialValue: btDeviceName,
-                      //           ),
-                      //         ])),
+                      Padding(
+                          padding: EdgeInsets.only(bottom: 16),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text("btDeviceName:  "),
+                                SizedBox(
+                                  width: 120,
+                                  child: TextFormField(
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        hintText: 'btDeviceName'),
+                                    onChanged: (text) {
+                                      setState(() => btDeviceName = text);
+                                    },
+                                    initialValue: btDeviceName,
+                                  ),
+                                ),
+                              ])),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
