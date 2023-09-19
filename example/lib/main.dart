@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart'
     show EventChannel, PlatformException, rootBundle;
-import 'package:flutter_document_reader_api_beta/document_reader.dart';
+import 'package:flutter_document_reader_api/document_reader.dart';
 import 'package:image_picker/image_picker.dart';
 
 void main() => runApp(MyApp());
@@ -19,9 +19,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   Future<List<String>> getImages() async {
     setStatus("Processing image...");
-    List<XFile> files = await ImagePicker().pickMultiImage();
+    List<XFile>? files = await ImagePicker().pickMultiImage();
     List<String> result = [];
-    for (XFile file in files)
+    for (XFile file in files!)
       result.add(base64Encode(io.File(file.path).readAsBytesSync()));
     return result;
   }
@@ -56,7 +56,7 @@ class _MyAppState extends State<MyApp> {
     EventChannel('flutter_document_reader_api/event/completion')
         .receiveBroadcastStream()
         .listen((jsonString) => this.handleCompletion(
-            DocumentReaderCompletion.fromJson(json.decode(jsonString))));
+            DocumentReaderCompletion.fromJson(json.decode(jsonString))!));
     EventChannel('flutter_document_reader_api/event/database_progress')
         .receiveBroadcastStream()
         .listen(
@@ -163,20 +163,20 @@ class _MyAppState extends State<MyApp> {
             completion.action == DocReaderAction.ERROR)) this.hideRfidUI();
     if (isReadingRfidCustomUi &&
         completion.action == DocReaderAction.NOTIFICATION)
-      this.updateRfidUI(completion.results.documentReaderNotification);
+      this.updateRfidUI(completion.results!.documentReaderNotification);
     if (completion.action ==
         DocReaderAction.COMPLETE) if (isReadingRfidCustomUi) if (completion
-            .results.rfidResult !=
+            .results!.rfidResult !=
         1)
       this.restartRfidUI();
     else {
       this.hideRfidUI();
-      this.displayResults(completion.results);
+      this.displayResults(completion.results!);
     }
     else
-      this.handleResults(completion.results);
+      this.handleResults(completion.results!);
     if (completion.action == DocReaderAction.TIMEOUT)
-      this.handleResults(completion.results);
+      this.handleResults(completion.results!);
     if (completion.action == DocReaderAction.CANCEL ||
         completion.action == DocReaderAction.ERROR) isReadingRfid = false;
   }
@@ -242,8 +242,8 @@ class _MyAppState extends State<MyApp> {
       DocumentReaderScenario scenario = DocumentReaderScenario.fromJson(
           scenariosTemp[i] is String
               ? json.decode(scenariosTemp[i])
-              : scenariosTemp[i]);
-      scenarios.add([scenario.name, scenario.caption]);
+              : scenariosTemp[i])!;
+      scenarios.add([scenario.name!, scenario.caption!]);
     }
     setState(() => _scenarios = scenarios);
     DocumentReader.setConfig({
@@ -272,23 +272,23 @@ class _MyAppState extends State<MyApp> {
         _docImage = Image.memory(Uri.parse("data:image/png;base64," +
                 results
                     .getGraphicFieldImageByType(
-                        EGraphicFieldType.GF_DOCUMENT_IMAGE)
+                        EGraphicFieldType.GF_DOCUMENT_IMAGE)!
                     .replaceAll('\n', ''))
-            .data
+            .data!
             .contentAsBytes());
       if (results.getGraphicFieldImageByType(201) != null)
         _portrait = Image.memory(Uri.parse("data:image/png;base64," +
                 results
-                    .getGraphicFieldImageByType(EGraphicFieldType.GF_PORTRAIT)
+                    .getGraphicFieldImageByType(EGraphicFieldType.GF_PORTRAIT)!
                     .replaceAll('\n', ''))
-            .data
+            .data!
             .contentAsBytes());
 
-      for (var textField in results.textResult.fields) {
-        for (var value in textField.values) {
-          print(textField.fieldName +
+      for (var textField in results.textResult!.fields) {
+        for (var value in textField!.values) {
+          print(textField.fieldName! +
               ', value: ' +
-              value.value +
+              value!.value! +
               ', source: ' +
               value.sourceType.toString());
         }
@@ -297,7 +297,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void handleResults(DocumentReaderResults results) {
-    if (_doRfid && !isReadingRfid && results != null && results.chipPage != 0) {
+    if (_doRfid && !isReadingRfid && results.chipPage != 0) {
       // customRFID();
       usualRFID();
     } else {
@@ -306,8 +306,8 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void onChangeRfid(bool value) {
-    setState(() => _doRfid = value && _canRfid);
+  void onChangeRfid(bool? value) {
+    setState(() => _doRfid = value! && _canRfid);
     DocumentReader.setConfig({
       "processParams": {"doRfid": _doRfid}
     });
@@ -350,7 +350,7 @@ class _MyAppState extends State<MyApp> {
     return Container(
         child: ListTile(
             title: GestureDetector(
-                onTap: () => radio.onChanged(_scenarios[index][0]),
+                onTap: () => radio.onChanged!(_scenarios[index][0]),
                 child: Text(_scenarios[index][1])),
             leading: radio),
         padding: EdgeInsets.only(left: 40));
