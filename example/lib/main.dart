@@ -21,7 +21,7 @@ class _MyAppState extends State<MyApp> {
     setStatus("Processing image...");
     List<XFile>? files = await ImagePicker().pickMultiImage();
     List<String> result = [];
-    for (XFile file in files!)
+    for (XFile file in files)
       result.add(base64Encode(io.File(file.path).readAsBytesSync()));
     return result;
   }
@@ -107,9 +107,8 @@ class _MyAppState extends State<MyApp> {
     setStatus("Initializing...");
     setState(() => isBleDeviceReady = true);
 
-    DocumentReader.initializeReaderDevice7310Config()
-        .then((value) => {onInitCompleted()})
-        .catchError(printError);
+    DocumentReader.initializeReaderBleDeviceConfig()
+        .then((value) => {onInitCompleted()});
   }
 
   checkPermissionsAndConnect() {
@@ -128,7 +127,7 @@ class _MyAppState extends State<MyApp> {
           print("bleService already connected");
       } else
         setStatus("ble permissions denied");
-    }).catchError(printError);
+    });
   }
 
   void addCertificates() async {
@@ -209,8 +208,7 @@ class _MyAppState extends State<MyApp> {
   updateRfidUI(results) {
     if (results.code ==
         ERFIDNotificationCodes.RFID_NOTIFICATION_PCSC_READING_DATAGROUP)
-      setState(() =>
-          rfidDescription = ERFIDDataFileType.getTranslation(results.number));
+      setState(() => rfidDescription = results.number);
     setState(() {
       rfidUIHeader = "Reading RFID";
       rfidUIHeaderColor = Colors.black;
@@ -261,38 +259,18 @@ class _MyAppState extends State<MyApp> {
     // addCertificates();
   }
 
-  displayResults(DocumentReaderResults results) {
+  displayResults(DocumentReaderResults results) async {
+    var name = await results.textFieldValueByType(EVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES);
+    var doc = await results.graphicFieldImageByType(EGraphicFieldType.GF_DOCUMENT_IMAGE);
+    var portrait = await results.graphicFieldImageByType(EGraphicFieldType.GF_PORTRAIT);
     setState(() {
-      _status = results.getTextFieldValueByType(
-              EVisualFieldType.FT_SURNAME_AND_GIVEN_NAMES) ??
-          "";
+      _status = name ?? "";
       _docImage = Image.asset('assets/images/id.png');
       _portrait = Image.asset('assets/images/portrait.png');
-      if (results.getGraphicFieldImageByType(207) != null)
-        _docImage = Image.memory(Uri.parse("data:image/png;base64," +
-                results
-                    .getGraphicFieldImageByType(
-                        EGraphicFieldType.GF_DOCUMENT_IMAGE)!
-                    .replaceAll('\n', ''))
-            .data!
-            .contentAsBytes());
-      if (results.getGraphicFieldImageByType(201) != null)
-        _portrait = Image.memory(Uri.parse("data:image/png;base64," +
-                results
-                    .getGraphicFieldImageByType(EGraphicFieldType.GF_PORTRAIT)!
-                    .replaceAll('\n', ''))
-            .data!
-            .contentAsBytes());
-
-      for (var textField in results.textResult!.fields) {
-        for (var value in textField!.values) {
-          print(textField.fieldName! +
-              ', value: ' +
-              value!.value! +
-              ', source: ' +
-              value.sourceType.toString());
-        }
-      }
+      if (doc != null)
+        _docImage = Image.memory(doc.data!.contentAsBytes());
+      if (portrait != null)
+        _portrait = Image.memory(portrait.data!.contentAsBytes());
     });
   }
 
@@ -361,97 +339,100 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
           appBar: AppBar(title: Center(child: Text(_status))),
-          body: Column(mainAxisAlignment: MainAxisAlignment.center, children: <
-              Widget>[
-            Visibility(
-                visible: isReadingRfidCustomUi,
-                child: Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[]),
-                      Container(
-                          child: Text(rfidUIHeader,
-                              textScaleFactor: 1.75,
-                              style: TextStyle(color: rfidUIHeaderColor)),
-                          padding: EdgeInsets.only(bottom: 40)),
-                      Container(
-                          child: Text(rfidDescription, textScaleFactor: 1.4),
-                          padding: EdgeInsets.only(bottom: 40)),
-                      FractionallySizedBox(
-                          widthFactor: 0.6,
-                          child: LinearProgressIndicator(
-                              value: rfidProgress,
-                              minHeight: 10,
-                              valueColor: new AlwaysStoppedAnimation<Color>(
-                                  Color(0xFF4285F4)))),
-                      TextButton(
-                        onPressed: () => hideRfidUI(),
-                        child: Text("X"),
-                        style: TextButton.styleFrom(
-                            padding: EdgeInsets.only(top: 50)),
-                      ),
-                    ]))),
-            Visibility(
-                visible: !isReadingRfidCustomUi,
-                child: Expanded(
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            createImage("Portrait", 150, 150, _portrait.image),
-                            createImage(
-                                "Document image", 150, 200, _docImage.image),
-                          ]),
-                      Expanded(
-                          child: Container(
-                              color: Color.fromARGB(5, 10, 10, 10),
-                              child: ListView.builder(
-                                  itemCount: _scenarios.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) =>
-                                          _buildRow(index)))),
-                      CheckboxListTile(
-                          value: _doRfid,
-                          onChanged: onChangeRfid,
-                          title: Text(
-                              "Process rfid reading ${_canRfid ? "" : "(unavailable)"}")),
-                      Padding(
-                          padding: EdgeInsets.only(bottom: 16),
-                          child: Row(
+          body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Visibility(
+                    visible: isReadingRfidCustomUi,
+                    child: Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[]),
+                          Container(
+                              child: Text(rfidUIHeader,
+                                  textScaleFactor: 1.75,
+                                  style: TextStyle(color: rfidUIHeaderColor)),
+                              padding: EdgeInsets.only(bottom: 40)),
+                          Container(
+                              child:
+                                  Text(rfidDescription, textScaleFactor: 1.4),
+                              padding: EdgeInsets.only(bottom: 40)),
+                          FractionallySizedBox(
+                              widthFactor: 0.6,
+                              child: LinearProgressIndicator(
+                                  value: rfidProgress,
+                                  minHeight: 10,
+                                  valueColor: new AlwaysStoppedAnimation<Color>(
+                                      Color(0xFF4285F4)))),
+                          TextButton(
+                            onPressed: () => hideRfidUI(),
+                            child: Text("X"),
+                            style: TextButton.styleFrom(
+                                padding: EdgeInsets.only(top: 50)),
+                          ),
+                        ]))),
+                Visibility(
+                    visible: !isReadingRfidCustomUi,
+                    child: Expanded(
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                createImage(
+                                    "Portrait", 150, 150, _portrait.image),
+                                createImage("Document image", 150, 200,
+                                    _docImage.image),
+                              ]),
+                          Expanded(
+                              child: Container(
+                                  color: Color.fromARGB(5, 10, 10, 10),
+                                  child: ListView.builder(
+                                      itemCount: _scenarios.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) =>
+                                              _buildRow(index)))),
+                          CheckboxListTile(
+                              value: _doRfid,
+                              onChanged: onChangeRfid,
+                              title: Text(
+                                  "Process rfid reading ${_canRfid ? "" : "(unavailable)"}")),
+                          Padding(
+                              padding: EdgeInsets.only(bottom: 16),
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text("btDeviceName:  "),
+                                    SizedBox(
+                                      width: 120,
+                                      child: TextFormField(
+                                        decoration: InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            hintText: 'btDeviceName'),
+                                        onChanged: (text) {
+                                          setState(() => btDeviceName = text);
+                                        },
+                                        initialValue: btDeviceName,
+                                      ),
+                                    ),
+                                  ])),
+                          Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                Text("btDeviceName:  "),
-                                SizedBox(
-                                  width: 120,
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        hintText: 'btDeviceName'),
-                                    onChanged: (text) {
-                                      setState(() => btDeviceName = text);
-                                    },
-                                    initialValue: btDeviceName,
-                                  ),
-                                ),
-                              ])),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            createButton("Scan document",
-                                () => DocumentReader.showScanner()),
-                            createButton("Start service",
-                                () => checkPermissionsAndConnect()),
-                          ])
-                    ]))),
-          ])),
+                                createButton("Scan document",
+                                    () => DocumentReader.showScanner()),
+                                createButton("Start service",
+                                    () => checkPermissionsAndConnect()),
+                              ])
+                        ]))),
+              ])),
     );
   }
 }
