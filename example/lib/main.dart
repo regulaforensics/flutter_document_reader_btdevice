@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart'
     show EventChannel, PlatformException, rootBundle;
-import 'package:flutter_document_reader_api/document_reader.dart';
+import 'package:flutter_document_reader_api_beta/document_reader.dart';
 import 'package:image_picker/image_picker.dart';
 
 void main() => runApp(MyApp());
