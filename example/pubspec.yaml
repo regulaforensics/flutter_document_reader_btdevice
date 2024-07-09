@@ -1,0 +1,29 @@
+name: flutter_document_reader_api_example
+description: Demonstrates how to use the flutter_document_reader_api plugin.
+
+publish_to: 'none'
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  path_provider: ^2.0.5
+  image_picker: ^0.8.4+2
+  flutter:
+    sdk: flutter
+  flutter_document_reader_btdevice:
+    path: ../
+  flutter_document_reader_api: 7.2.0
+  flutter_document_reader_core_fullauthrfid: 7.2.0
+  cupertino_icons: ^1.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    - assets/images/
+    - assets/regula.license
+    - assets/certificates/
+  uses-material-design: true

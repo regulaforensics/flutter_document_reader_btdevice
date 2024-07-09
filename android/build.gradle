@@ -1,0 +1,28 @@
+apply plugin: 'com.android.library'
+
+android {
+    // Conditional for compatibility with AGP <4.2.
+    if (project.android.hasProperty("namespace")) {
+        namespace 'io.flutter.plugins.regula.documentreader.flutter_document_reader_btdevice'
+    }
+
+    compileSdk 34
+
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://maven.regulaforensics.com/RegulaDocumentReader"
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.regula.btdevice:api:1.1.394'
+}
