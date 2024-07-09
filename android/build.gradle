@@ -18,11 +18,11 @@ rootProject.allprojects {
         google()
         mavenCentral()
         maven {
-            url "https://maven.regulaforensics.com/RegulaDocumentReader"
+            url "https://maven.regulaforensics.com/RegulaDocumentReader/Beta"
         }
     }
 }
 
 dependencies {
-    implementation 'com.regula.btdevice:api:1.1.394'
+    implementation 'com.regula.btdevice:api:1.1.409'
 }
