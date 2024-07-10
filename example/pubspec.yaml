@@ -14,7 +14,7 @@ dependencies:
   flutter_document_reader_btdevice:
     path: ../
   flutter_document_reader_api: 7.3.862-nightly
-  flutter_document_reader_core_fullauthrfid: 7.3.488-nightly
+  flutter_document_reader_core_fullauthrfid: 7.3.501-beta
   cupertino_icons: ^1.0.3
 
 dev_dependencies:
